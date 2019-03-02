@@ -1,7 +1,8 @@
 {
+    "plugins":["@babel/plugin-transform-modules-commonjs"],
     "presets":[
-        "env",
-        "react"
+        "@babel/env",
+        "@babel/react"
     ],
-    "ignore": "node_modules"
+    "ignore": ["node_modules"]
 }

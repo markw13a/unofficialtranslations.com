@@ -3,12 +3,13 @@ const path = require('path');
 
 const config = {
     entry: {
-        './build/react-bundle':  './src/client',
+        './build/server-bundle':  './bin/www.js',
     },
     output: {
         filename: '[name].js',
         path: __dirname
     },
+    target: 'node',
     module: {
         rules: [
             {
@@ -17,7 +18,8 @@ const config = {
                 loader: "babel-loader",
                 options: {
                   cacheDirectory: true,
-                  presets: ['@babel/react', '@babel/env'] // Transpiles JSX and ES6
+                  plugins: ['@babel/plugin-transform-modules-commonjs'],
+                  presets: ['@babel/env'] // Transpiles JSX and ES6
                 }
               }]            
             }

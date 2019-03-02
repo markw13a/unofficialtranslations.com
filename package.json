@@ -1,18 +1,16 @@
 {
   "name": "practiceapp",
   "version": "0.0.0",
+  "main": "bin/www.js",
   "scripts": {
-    "start": "babel-node ./bin/www.js",
+    "start": "node ./bin/www.js",
     "webpack": "./node_modules/.bin/webpack",
-    "webpack-watch": "./node_modules/.bin/webpack -w"
+    "webpack-watch": "./node_modules/.bin/webpack -w",
+    "webpack-server": "./node_modules/.bin/webpack --config webpack.server.config.js"
   },
   "dependencies": {
     "@sendgrid/mail": "^6.3.1",
     "axios": "^0.18.0",
-    "babel-cli": "^6.26.0",
-    "babel-loader": "^7.1.5",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
     "body-parser": "~1.18.2",
     "cheerio": "^1.0.0-rc.2",
     "cookie-parser": "~1.4.3",
@@ -34,5 +32,13 @@
     "vhost": "^3.0.2",
     "webpack": "^4.16.1",
     "webpack-cli": "^3.1.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.3.4",
+    "@babel/plugin-transform-modules-commonjs": "^7.2.0",
+    "@babel/preset-env": "^7.3.4",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.5"
   }
 }
