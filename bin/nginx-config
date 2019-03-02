@@ -7,11 +7,14 @@ server {
 
     index index.html;
 
+    #Default to serving html file with react bundle loaded in
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+    #Pass data requests to listening nodejs server
     location /rest {
         proxy_pass http://127.0.0.1:3000;
     }
-
 }
-
 
 
