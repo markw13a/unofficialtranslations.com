@@ -27,7 +27,7 @@ router.get('/get*', (req, res) => {
 
 // form for creating new article
 router.get('/create', (req, res) => {
-	res.render('react-index');
+	res.sendFile('index.html');
 });
 
 // write item to back-end if correct password provided
@@ -63,7 +63,7 @@ router.post('/create', (req, res) => {
 
 // form for deleting article
 router.get('/delete*', (req, res) => {
-	res.render('react-index');
+	res.sendFile('index.html');
 });
 
 router.post('/delete*', (req, res) => {

@@ -3,7 +3,7 @@ const path = require('path');
 
 const config = {
     entry: {
-        './build/react-bundle':  './src/client',
+        './public/react-bundle':  './src/client',
     },
     output: {
         filename: '[name].js',

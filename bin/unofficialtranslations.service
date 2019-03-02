@@ -2,7 +2,7 @@
 Description="unofficialtranslations HTTP server"
 
 [Service]
-ExecStart=/usr/bin/node /home/ubuntu/unofficialtranslations.com/bin/www.js
+ExecStart=/usr/bin/node /home/ubuntu/unofficialtranslations.com/build/server-bundle.js
 #WorkingDirectory=/home/ubuntu/unofficialtranslations.com/
 Restart=always
 RestartSec=10

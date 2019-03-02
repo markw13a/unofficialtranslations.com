@@ -3,16 +3,15 @@ server {
     listen [::]:80;
 
     server_name unofficialtranslations.com;
+    root /home/ubuntu/unofficialtranslations.com/public;
 
-    location / {
+    index index.html;
+
+    location /rest {
         proxy_pass http://127.0.0.1:3000;
     }
 
 }
-
-
-
-
 
 
 

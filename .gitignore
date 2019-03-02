@@ -2,3 +2,4 @@
 /resources/credentials.js
 /sync-private-files.sh
 /build/*
+/public/react-bundle.js
