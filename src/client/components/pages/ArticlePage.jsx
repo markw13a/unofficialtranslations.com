@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
-import NavBar from './NavBar';
-import Footer from './Footer';
+import NavBar from '../common/NavBar';
+import Footer from '../common/Footer';
 
 class ArticlePage extends React.Component {
     constructor(props){

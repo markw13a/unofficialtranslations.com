@@ -1,20 +1,18 @@
 import React from 'react';
 import { render } from 'react-dom';
 
-import NewArticle from './components/NewArticle';
-import DeletePage from './components/DeletePage';
-import IndexPage from './components/IndexPage';
-import ArticlePage from './components/ArticlePage';
-import AboutPage from './components/AboutPage';
-import ErrorPage from './components/ErrorPage';
+import NewArticle from './components/pages/NewArticle';
+import DeletePage from './components/pages/DeletePage';
+import IndexPage from './components/pages/IndexPage';
+import ArticlePage from './components/pages/ArticlePage';
+import AboutPage from './components/pages/AboutPage';
+import ErrorPage from './components/pages/ErrorPage';
+import NewArticle from './components/pages/NewArticle';
 
 const pages = {
     article: ArticlePage,
     about: AboutPage,
-    rest:{
-        delete: DeletePage,
-        create: NewArticle
-    }
+    new: NewArticle
 };
 
 class Main extends React.Component {

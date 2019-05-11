@@ -7,16 +7,14 @@ const adminPassword = credentials.rest.password;
 
 // retrieve  item from back-end
 router.get('/get*', (req, res) => {
-    const pathname = req._parsedOriginalUrl.pathname || '';
-    // return entire collection if a specific article title is not given
-    const articleID = pathname.match(/get\/([^\/]*$)/);
+    const {articleid} = req.body;
 
     getDB()
     .then( db => {
         const collection = db.db("translation").collection("articles");
 
-        if(articleID && articleID[1]) {
-            return collection.find({'endpointTitle': articleID[1]});
+        if(articleid) {
+            return collection.find({articleid});
         }
         // return entire collection if a specific article title is not requested
         return collection.find({});
@@ -25,26 +23,55 @@ router.get('/get*', (req, res) => {
     .then( data => res.json({data}));
 });
 
-// form for creating new article
-router.get('/create', (req, res) => {
-	res.sendFile('index.html');
-});
-
 // write item to back-end if correct password provided
-router.post('/create', (req, res) => {
-    const {password} = req.body;    
+router.post('/create*', (req, res) => {
+    const {password} = req.body;   
     // db could still be a promise at this stage.
     const db = getDB();
 
-    // console.warn(db.resolved);
-    // {
-    //     endpoint-title: "",
-    //     target-language: {language: "en", title: "...", text: "..."}
-    //     source-language: {language: "es", title: "...", text: "..."}
-    //     link: "..." // link to original text
-    // }
+    if(password !== adminPassword) res.json({message:'Incorrect Password. New item not created'});
 
-    if(password !== adminPassword) res.send('Incorrect Password. New item not created')
+    // Create entry for item in back-end 
+    db.then( v => {
+        const collection  = v.db("translation").collection("articles");
+        
+        const articleData = req.body;
+        // don't want to save password to db!
+        delete articleData.password;
+        console.warn(articleData);
+        collection.insertOne(articleData);
+    });
+    
+    // Success. Link to new asset's endpoint
+    res.json({message:'Item successfully created'});
+});
+
+router.post('/delete*', (req, res) => {
+    const {password, articleid} = req.body;
+    console.warn(articleid);
+    // db could still be a promise at this stage.
+    const db = getDB();
+
+    if(password !== adminPassword) res.json({message:'Incorrect Password. Item not deleted'});
+
+    db.then( v => {
+        const collection  = v.db("translation").collection("articles");
+        
+        if(articleid) {
+            collection.remove({articleid}, {justOne: true});
+            res.json({message: 'Item deleted.'});
+            return;
+        }
+        res.json({message:'No valid article ID provided. No action taken.'});
+    });
+});
+
+router.post('/update*', () => {
+    const {password, articleid} = req.body;
+
+    const db = getDB();
+
+    if(password !== adminPassword) res.json({message:'Incorrect Password. New item not created'});
 
     // Create entry for item in back-end 
     db.then( v => {
@@ -54,36 +81,14 @@ router.post('/create', (req, res) => {
         // don't want to save password to db!
         delete articleData.password;
 
-        collection.save(articleData);
+        if( articleid ) {
+            collection.update({articleid}, {$set:articleData});
+        }
+        res.json({message:'No valid article ID provided. No action taken.'});
     });
     
     // Success. Link to new asset's endpoint
-    res.send('Item successfully created');
-});
-
-// form for deleting article
-router.get('/delete*', (req, res) => {
-	res.sendFile('index.html');
-});
-
-router.post('/delete*', (req, res) => {
-    const {password, articleID} = req.body;
-    console.warn(articleID);
-    // db could still be a promise at this stage.
-    const db = getDB();
-
-    if(password !== adminPassword) res.send('Incorrect Password. Item not deleted')
-
-    db.then( v => {
-        const collection  = v.db("translation").collection("articles");
-        
-        if(articleID) {
-            collection.remove({'endpointTitle': articleID}, {justOne: true});
-            res.send('Item deleted.');
-            return;
-        }
-        res.send('No valid article ID provided. No action taken.');
-    });
+    res.json({message:'Item successfully created'});
 });
 
 module.exports = router;

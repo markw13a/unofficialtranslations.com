@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
-import NavBar from './NavBar';
-import Footer from './Footer';
+import NavBar from '../common/NavBar';
+import Footer from '../common/Footer';
 
 class IndexPage extends React.Component {
     constructor(props){
@@ -10,7 +10,6 @@ class IndexPage extends React.Component {
         this.state = {
             data: {
                 value: null,
-                resolved: false
             }
         };
     };
@@ -19,17 +18,17 @@ class IndexPage extends React.Component {
     componentDidMount() {
         axios.get('/rest/get')
             .then(value => {
-                this.setState({data: {value: value.data.data, resolved: true}});
+                this.setState({data: {value: value.data.data}});
             });
     };
 
     render() {
-        let {value, resolved} = this.state.data;
+        let {value} = this.state.data;
 
         return (
             <div className="IndexPage Page"> 
                 <NavBar />
-                {true ? <ArticlesList articles={value} /> : null}
+                <ArticlesList articles={value} />
                 <Footer />
             </div>
         );
