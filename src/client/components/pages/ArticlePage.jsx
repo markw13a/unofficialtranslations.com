@@ -1,88 +1,70 @@
-import React from 'react';
-import axios from 'axios';
+import React, {useEffect, useState} from 'react';
 import NavBar from '../common/NavBar';
 import Footer from '../common/Footer';
 
-class ArticlePage extends React.Component {
-    constructor(props){
-        super(props);
+const ArticlePage = () => {
+    const [data, setData] = useState();
+    // Show English article by default
+    const [language, setLanguage] = useState('en');
 
-        const articleName = window.location.pathname.match(/article\/([^\/]*$)/);
-        const endpointTitle = articleName && articleName[1] ? articleName[1] : null;
+    let articleName = window.location.pathname.match(/article\/([^\/]*$)/);
+    articleName = articleName && articleName[1];
 
-        this.state = {
-            endpointTitle,
-            data: {
-                value: null,
-                resolved: false
-            },
-            sourceOrTarget: "targetLanguage"
-        };
-    };
+    useEffect(() => {
+        fetch('/rest/get/' + articleName)
+        .then(res => res.json())
+        .then( json => setData(json.data[0]));
+    }, [articleName]);
 
-    // retrieve article data from back-end
-    componentDidMount() {
-        const {endpointTitle} = this.state;
-        axios.get('/rest/get' + '/' + endpointTitle)
-            .then(value => {
-                this.setState({data: {value: value.data.data[0], resolved: true}});
-            });
-    };
+    if( !data ) return 'Article not found';
 
-    render() {
-        const {sourceOrTarget} = this.state;
-        let {value, resolved} = this.state.data;
-        
-        return (
-            <div className="ArticlePage Page"> 
-                <NavBar />
-                {resolved ?
-                    <div className="container">
-                        <div className="other">
-                            <LanguageSwitcher article={value} sourceOrTarget={sourceOrTarget} thisRef={this} />
-                            <a href={value.link} target="_blank">Original article >></a>                      
-                        </div>
-                        <Article article={value} sourceOrTarget={sourceOrTarget} />
-                    </div> 
-                    : null}
-                <Footer />
-            </div>
-        );
-    };
-}
+    console.warn(language);
+
+    return (
+        <div className="ArticlePage Page"> 
+            <NavBar />
+            <div className="container">
+                <div className="other">
+                    <LanguageSwitcher articles={data.articles} language={language} setLanguage={setLanguage} />
+                    <a href={data.link} target="_blank">Original article >></a>                      
+                </div>
+                <Article articles={data.articles} language={language} />
+            </div> 
+            <Footer />
+        </div>
+    );
+};
 
 /**
  * @param articles json object containing article data
  */
-const Article = ({article, sourceOrTarget}) => {
-    if( !article ) {
-        console.warn("No data found for given endpointTitle", article);
-        return null;
-    }
+const Article = ({articles, language}) => {
+    const articleData = articles.find( article => article.language === language);
+
+    if( !articleData ) return 'An error has occurred: no data found for the language selected'
+
     return (
             <div className="article">
-                <h2 className="title">{article[sourceOrTarget + 'Title']}</h2>
-                <div className="imgContainer"><img src={article.image} /></div>                    
-                <div className="blurb"><small>{article.blurb}</small></div>
-                <div className="text" dangerouslySetInnerHTML={{__html: article[sourceOrTarget + 'Text']}} />
+                <h2 className="title">{articleData.title}</h2>
+                <div className="imgContainer"><img src={articleData.image} /></div>                    
+                <div className="blurb"><small>{articleData.blurb}</small></div>
+                <div className="text" dangerouslySetInnerHTML={{__html: articleData.text}} />
             </div>
     );
 };
 
 
-const LanguageSwitcher = ({article, sourceOrTarget, thisRef}) => {
-    return (
+const LanguageSwitcher = ({articles, language, setLanguage}) => (
         <div className="languageSwitcher"> 
-            <label for="targetLanguage" className={sourceOrTarget === 'targetLanguage' ? 'checked' : ''}>
-                <input type="checkbox" id="targetLanguage" name="targetLanguage" onChange={() => {thisRef.setState({sourceOrTarget: "targetLanguage"})}} />
-                {article.targetLanguage}
-            </label>
-            <label for="sourceLanguage" className={sourceOrTarget === 'sourceLanguage' ? 'checked' : ''}>
-                <input type="checkbox" id="sourceLanguage" name="sourceLanguage" onChange={() => {thisRef.setState({sourceOrTarget: "sourceLanguage"})}}></input>
-                {article.sourceLanguage}
-            </label>
+            {
+                articles.map( article => (
+                    <label for={article.language} className={language === article.language ? 'checked' : ''}>
+                        <input type="checkbox" id={article.language} name={article.language} onChange={() => setLanguage(article.language)} />
+                        {article.language}
+                   </label>
+                ))
+            }
         </div>
-    );
-};
+);
 
 module.exports = ArticlePage;
