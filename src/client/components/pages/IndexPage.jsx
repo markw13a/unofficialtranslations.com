@@ -51,7 +51,8 @@ const ArticlesList = ({data}) => {
 
                 if( !enArticle ) enArticle = article.articles[0];
 
-                const {title, image, id, blurb, date} = enArticle;
+                const {id} = article;
+                const {title, image, blurb, date} = enArticle;
 
                 return (
                     <div className="article">
