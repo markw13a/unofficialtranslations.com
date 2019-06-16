@@ -47,7 +47,7 @@ const ArticlesList = ({data}) => {
             {data.map( article => {
                 // Just show English version on front-page
                 // TODO: Make language something that can just be toggled globally
-                const enArticle = article.articles.find( article => article.language === 'en');
+                let enArticle = article.articles.find( article => article.language === 'en');
 
                 if( !enArticle ) enArticle = article.articles[0];
 

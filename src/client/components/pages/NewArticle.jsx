@@ -1,5 +1,6 @@
+// TODO: This all feels quite clunky. Is there a way to simplify things?
+// Getting rid of need to maintain "parent state" in InputFields would help greatly
 import React, {useState, useEffect} from 'react';
-
 import { ControlledFormInput } from '../common/Form';
 
 /** 
@@ -9,8 +10,7 @@ import { ControlledFormInput } from '../common/Form';
  * @param index used to identify where article data should be inserted in to master state
 */
 const InputFields = ({index, setArticles, articles, defaultValues={}}) => { 
-    const [article, setArticle] = useState({});
-
+    const [article, setArticle] = useState(defaultValues);
     // Update data held locally and by parent
     const onChange = ({key, value}) => {
         const updatedArticle = {...article, [key]: value};
@@ -70,26 +70,33 @@ const NewArticle = () => {
     const [password, setPassword] = useState('');
 
     // Show one set of fields by default
-    const [inputFieldsArray, setInputFieldsArray] = useState([<InputFields index={0} setArticles={setArticles} articles={articles} />]);
+    const [inputFieldsArray, setInputFieldsArray] = useState([]);
 
     // Display another set of input fields
     const onClick = () => {
         setInputFieldsArray([...inputFieldsArray, <InputFields index={inputFieldsArray.length} setArticles={setArticles} articles={articles} />]);
     };
 
-    // Pull in data if we are editing existing article
+    // Set up input fields
     useEffect(() => {
         // TODO: Maybe have index place this info in to sone kind of global state?
         const pathBits = window.location.pathname.split("/").slice(1);
         const isEdit = pathBits[0] === 'edit';
 
-        // Fetch data for given article
+        // Pull in data if we are editing existing article        
         if( isEdit ) {
             fetch('/rest/get/?id=' + pathBits[1])
             .then( res => res.json())
             .then( json => {
-                console.warn(json);
+                // Input fields with pre-loaded data
+                const {articles} = json.data[0];
+                setInputFieldsArray(
+                    articles.map( (article, index) => <InputFields index={index} defaultValues={article} setArticles={setArticles} articles={articles} />)
+                );
             });
+        } else {
+            // Just show an empty set of fields if not 
+            setInputFieldsArray([<InputFields index={0} setArticles={setArticles} articles={articles} />]);
         }
     }, []);
 
