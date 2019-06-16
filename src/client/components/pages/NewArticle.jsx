@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 
 import { ControlledFormInput } from '../common/Form';
 
@@ -8,7 +8,7 @@ import { ControlledFormInput } from '../common/Form';
  * @param articles an array of all article data
  * @param index used to identify where article data should be inserted in to master state
 */
-const InputFields = ({index, setArticles, articles}) => { 
+const InputFields = ({index, setArticles, articles, defaultValues={}}) => { 
     const [article, setArticle] = useState({});
 
     // Update data held locally and by parent
@@ -23,37 +23,37 @@ const InputFields = ({index, setArticles, articles}) => {
 
     return (
         <div className="inputFields">
-            <ControlledFormInput onChange={({value}) => onChange({key: 'language', value})} render={ ({value, onChange}) => 
+            <ControlledFormInput defaultValue={defaultValues.language} onChange={({value}) => onChange({key: 'language', value})} render={ ({value, onChange}) => 
                 <label> Language
                     <input type="text" value={value} onChange={onChange} />
                 </label>}
             />
-            <ControlledFormInput onChange={({value}) => onChange({key: 'title', value})} render={ ({value, onChange}) => 
+            <ControlledFormInput defaultValue={defaultValues.title} onChange={({value}) => onChange({key: 'title', value})} render={ ({value, onChange}) => 
                 <label> Title
                     <input type="text" value={value} onChange={onChange} />
                 </label>}
             />
-            <ControlledFormInput onChange={({value}) => onChange({key: 'blurb', value})} render={ ({value, onChange}) => 
+            <ControlledFormInput defaultValue={defaultValues.blurb} onChange={({value}) => onChange({key: 'blurb', value})} render={ ({value, onChange}) => 
                 <label> Blurb
                     <textarea type="text" value={value} onChange={onChange} />
                 </label>}
             />
-            <ControlledFormInput onChange={({value}) => onChange({key: 'link', value})} render={ ({value, onChange}) => 
+            <ControlledFormInput defaultValue={defaultValues.link} onChange={({value}) => onChange({key: 'link', value})} render={ ({value, onChange}) => 
                 <label> Link
                     <input type="text" value={value} onChange={onChange} />
                 </label>}
             />
-            <ControlledFormInput onChange={({value}) => onChange({key: 'image', value})} render={ ({value, onChange}) => 
+            <ControlledFormInput defaultValue={defaultValues.image} onChange={({value}) => onChange({key: 'image', value})} render={ ({value, onChange}) => 
                 <label> Image
                     <input type="text" value={value} onChange={onChange} />
                 </label>}
             />
-            <ControlledFormInput onChange={({value}) => onChange({key: 'text', value})} render={ ({value, onChange}) => 
+            <ControlledFormInput defaultValue={defaultValues.text} onChange={({value}) => onChange({key: 'text', value})} render={ ({value, onChange}) => 
                 <label> Text
                     <textarea type="text" value={value} onChange={onChange} />
                 </label>}
             />
-            <ControlledFormInput onChange={({value}) => onChange({key: 'date', value})} render={ ({value, onChange}) => 
+            <ControlledFormInput defaultValue={defaultValues.date} onChange={({value}) => onChange({key: 'date', value})} render={ ({value, onChange}) => 
                 <label> Date
                     <input type="text" value={value} onChange={onChange} />
                 </label>}
@@ -76,6 +76,22 @@ const NewArticle = () => {
     const onClick = () => {
         setInputFieldsArray([...inputFieldsArray, <InputFields index={inputFieldsArray.length} setArticles={setArticles} articles={articles} />]);
     };
+
+    // Pull in data if we are editing existing article
+    useEffect(() => {
+        // TODO: Maybe have index place this info in to sone kind of global state?
+        const pathBits = window.location.pathname.split("/").slice(1);
+        const isEdit = pathBits[0] === 'edit';
+
+        // Fetch data for given article
+        if( isEdit ) {
+            fetch('/rest/get/?id=' + pathBits[1])
+            .then( res => res.json())
+            .then( json => {
+                console.warn(json);
+            });
+        }
+    }, []);
 
     const submitFn = () => {
         if( !id || articles.length === 0) {

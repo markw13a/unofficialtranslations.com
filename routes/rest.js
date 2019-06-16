@@ -7,17 +7,14 @@ const adminPassword = credentials.rest.password;
 
 // retrieve  item from back-end
 router.get('/get*', (req, res) => {
-    const {articleid} = req.body;
+    const {id} = req.query;
 
     getDB()
     .then( db => {
         const collection = db.db("translation").collection("articles");
 
-        if(articleid) {
-            return collection.find({articleid});
-        }
         // return entire collection if a specific article title is not requested
-        return collection.find({});
+        return collection.find(id ? {id} : {});
     }) // need to convert MongoDB object to array
     .then( results => results.toArray())
     .then( data => res.json({data}));
@@ -47,8 +44,8 @@ router.post('/create*', (req, res) => {
 });
 
 router.post('/delete*', (req, res) => {
-    const {password, articleid} = req.body;
-    console.warn(articleid);
+    const {password, id} = req.body;
+    console.warn(id);
     // db could still be a promise at this stage.
     const db = getDB();
 
@@ -57,8 +54,8 @@ router.post('/delete*', (req, res) => {
     db.then( v => {
         const collection  = v.db("translation").collection("articles");
         
-        if(articleid) {
-            collection.remove({articleid}, {justOne: true});
+        if(id) {
+            collection.remove({id}, {justOne: true});
             res.json({message: 'Item deleted.'});
             return;
         }
@@ -67,7 +64,7 @@ router.post('/delete*', (req, res) => {
 });
 
 router.post('/update*', () => {
-    const {password, articleid} = req.body;
+    const {password, id} = req.body;
 
     const db = getDB();
 
@@ -81,8 +78,8 @@ router.post('/update*', () => {
         // don't want to save password to db!
         delete articleData.password;
 
-        if( articleid ) {
-            collection.update({articleid}, {$set:articleData});
+        if( id ) {
+            collection.update({id}, {$set:articleData});
         }
         res.json({message:'No valid article ID provided. No action taken.'});
     });

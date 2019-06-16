@@ -11,7 +11,8 @@ import NewArticle from './components/pages/NewArticle';
 const pages = {
     article: ArticlePage,
     about: AboutPage,
-    new: NewArticle
+    new: NewArticle,
+    edit: NewArticle
 };
 
 class Main extends React.Component {

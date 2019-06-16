@@ -6,8 +6,8 @@ import React, { useState } from 'react';
  * Can still use it by providing an onChange({value}) function
 */
 const ControlledFormInput = (props) => {  
-    const {onChange, render} = props;
-    const [value, setValue] = useState();
+    const {onChange, render, defaultValue} = props;
+    const [value, setValue] = useState(defaultValue);
 
     const defaultOnChange = event => {
         const {value} = event.target;

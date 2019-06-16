@@ -11,14 +11,12 @@ const ArticlePage = () => {
     articleName = articleName && articleName[1];
 
     useEffect(() => {
-        fetch('/rest/get/' + articleName)
+        fetch('/rest/get/?id=' + articleName)
         .then(res => res.json())
         .then( json => setData(json.data[0]));
     }, [articleName]);
 
     if( !data ) return 'Article not found';
-
-    console.warn(language);
 
     return (
         <div className="ArticlePage Page"> 
