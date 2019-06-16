@@ -35,7 +35,6 @@ router.post('/create*', (req, res) => {
         const articleData = req.body;
         // don't want to save password to db!
         delete articleData.password;
-        console.warn(articleData);
         collection.insertOne(articleData);
     });
     
@@ -45,7 +44,6 @@ router.post('/create*', (req, res) => {
 
 router.post('/delete*', (req, res) => {
     const {password, id} = req.body;
-    console.warn(id);
     // db could still be a promise at this stage.
     const db = getDB();
 
@@ -63,12 +61,13 @@ router.post('/delete*', (req, res) => {
     });
 });
 
-router.post('/update*', () => {
+router.post('/update*', (req, res) => {
     const {password, id} = req.body;
-
     const db = getDB();
 
     if(password !== adminPassword) res.json({message:'Incorrect Password. New item not created'});
+
+    if( !id ) res.json({message:'No valid article ID provided. No action taken.'});
 
     // Create entry for item in back-end 
     db.then( v => {
@@ -77,14 +76,9 @@ router.post('/update*', () => {
         const articleData = req.body;
         // don't want to save password to db!
         delete articleData.password;
-
-        if( id ) {
-            collection.update({id}, {$set:articleData});
-        }
-        res.json({message:'No valid article ID provided. No action taken.'});
+        collection.update({id}, articleData);
     });
     
-    // Success. Link to new asset's endpoint
     res.json({message:'Item successfully created'});
 });
 

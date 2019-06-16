@@ -63,6 +63,11 @@ const InputFields = ({index, setArticles, articles, defaultValues={}}) => {
 };
 
 const NewArticle = () => {
+    // Do we want to create a new article or edit an existing one?
+    // TODO: Maybe have index place this info in to sone kind of global state?
+    const pathBits = window.location.pathname.split("/").slice(1);
+    const isEdit = pathBits[0] === 'edit';
+
     // Pass these to InputFields components. They will insert their state so that we can easily access data on submission
     const [articles, setArticles] = useState([]);
 
@@ -79,10 +84,6 @@ const NewArticle = () => {
 
     // Set up input fields
     useEffect(() => {
-        // TODO: Maybe have index place this info in to sone kind of global state?
-        const pathBits = window.location.pathname.split("/").slice(1);
-        const isEdit = pathBits[0] === 'edit';
-
         // Pull in data if we are editing existing article        
         if( isEdit ) {
             fetch('/rest/get/?id=' + pathBits[1])
@@ -108,7 +109,8 @@ const NewArticle = () => {
 
         console.warn({id, articles, password});
 
-        fetch('/rest/create', {
+        const endpoint = isEdit ? '/rest/update' : '/rest/create';
+        fetch(endpoint, {
             method: 'post',
             headers: {
                 'Accept': 'application/json',
