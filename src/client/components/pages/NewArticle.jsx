@@ -109,8 +109,7 @@ const NewArticle = () => {
 
         console.warn({id, articles, password});
 
-        const endpoint = isEdit ? '/rest/update' : '/rest/create';
-        fetch(endpoint, {
+        fetch('/rest/create', {
             method: 'post',
             headers: {
                 'Accept': 'application/json',

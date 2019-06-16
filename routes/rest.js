@@ -35,7 +35,9 @@ router.post('/create*', (req, res) => {
         const articleData = req.body;
         // don't want to save password to db!
         delete articleData.password;
-        collection.insertOne(articleData);
+
+        // Use upsert to avoid multiple articles with the same id being created
+        collection.update({id: articleData.id}, articleData, {upsert: true});
     });
     
     // Success. Link to new asset's endpoint
@@ -59,27 +61,6 @@ router.post('/delete*', (req, res) => {
         }
         res.json({message:'No valid article ID provided. No action taken.'});
     });
-});
-
-router.post('/update*', (req, res) => {
-    const {password, id} = req.body;
-    const db = getDB();
-
-    if(password !== adminPassword) res.json({message:'Incorrect Password. New item not created'});
-
-    if( !id ) res.json({message:'No valid article ID provided. No action taken.'});
-
-    // Create entry for item in back-end 
-    db.then( v => {
-        const collection  = v.db("translation").collection("articles");
-        
-        const articleData = req.body;
-        // don't want to save password to db!
-        delete articleData.password;
-        collection.update({id}, articleData);
-    });
-    
-    res.json({message:'Item successfully created'});
 });
 
 module.exports = router;
