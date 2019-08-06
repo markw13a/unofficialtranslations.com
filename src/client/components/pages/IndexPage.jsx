@@ -1,34 +1,26 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import NavBar from '../common/NavBar';
 import Footer from '../common/Footer';
 
-class IndexPage extends React.Component {
-    constructor(props){
-        super(props);
+const IndexPage = () => {
+    const [data, setData] = useState();
 
-        this.state = {
-        };
-    };
-
-    // retrieve article data from back-end
-    componentDidMount() {
+    useEffect(() => {
         fetch('/rest/get')
-            .then(res => res.json())
-            .then(json => {
-                this.setState({data: json.data});
-            });
-    };
+        .then(res => res.json())
+        .then(json => {
+            setData(json.data);
+        });
+    }, []);
 
-    render() {
-        return (
-            <div className="IndexPage Page"> 
-                <NavBar />
-                <ArticlesList data={this.state.data} />
-                <Footer />
-            </div>
-        );
-    };
-}
+    return (
+        <div className="IndexPage Page"> 
+            <NavBar />
+            <ArticlesList data={data} />
+            <Footer />
+        </div>
+    );
+};
 
 /**
  * @param articles array of json objects containing info on articles
@@ -72,5 +64,4 @@ const ArticlesList = ({data}) => {
         </div>
     );
 };
-
-module.exports = IndexPage;
+export default IndexPage;

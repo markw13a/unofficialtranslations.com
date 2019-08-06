@@ -138,4 +138,4 @@ const NewArticle = () => {
     );
 };
 
-module.exports = NewArticle;
+export default NewArticle;

@@ -1,6 +1,6 @@
 import React from 'react';
 
-module.exports = () => {
+export default () => {
     return (
         <div className="footer"></div>
     );

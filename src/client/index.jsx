@@ -1,11 +1,9 @@
 import React from 'react';
 import { render } from 'react-dom';
 
-import DeletePage from './components/pages/DeletePage';
 import IndexPage from './components/pages/IndexPage';
 import ArticlePage from './components/pages/ArticlePage';
 import AboutPage from './components/pages/AboutPage';
-import ErrorPage from './components/pages/ErrorPage';
 import NewArticle from './components/pages/NewArticle';
 
 const pages = {
@@ -15,34 +13,19 @@ const pages = {
     edit: NewArticle
 };
 
-class Main extends React.Component {
-    constructor(props) {
-        super(props);
+const Main = () => {
+    const pathname = window.location.pathname;
+    const pathBit = pathname.split("/").slice(1)[0];
 
-        this.state = {
-            pathname: null
-        }
-    };
+    // Should return a React Component to be used
+    let Page = pages[pathBit] || IndexPage;
 
-    componentWillMount() {
-        this.setState({pathname: window.location.pathname});
-    }
-
-    render() {
-        const {pathname} = this.state;
-        const pathBit = pathname.split("/").slice(1)[0];
-
-        // Iterate through pages object
-        // Should return a React Component to be used
-        let Page = pages[pathBit] || IndexPage;
-
-        return <Page />;
-    };
-}
+    return <Page />;
+};
 
 render(
     <Main />,
     document.querySelector('body')
 );
 
-module.exports = Main;
+export default Main;

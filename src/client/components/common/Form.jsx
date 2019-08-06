@@ -19,6 +19,6 @@ const ControlledFormInput = (props) => {
     return render({...props, onChange: defaultOnChange, value});
 }
 
-module.exports = {
+export {
     ControlledFormInput
 };

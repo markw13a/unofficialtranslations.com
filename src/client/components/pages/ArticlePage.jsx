@@ -65,4 +65,4 @@ const LanguageSwitcher = ({articles, language, setLanguage}) => (
         </div>
 );
 
-module.exports = ArticlePage;
+export default ArticlePage;
