@@ -9,16 +9,16 @@ const ControlledFormInput = (props) => {
     const {onChange, render, defaultValue} = props;
     const [value, setValue] = useState(defaultValue);
 
-    const defaultOnChange = event => {
+    const onChangeBase = event => {
         const {value} = event.target;
 
         setValue(value);
         onChange && onChange({value});
     };
 
-    return render({...props, onChange: defaultOnChange, value});
+    return render({...props, onChange: onChangeBase, value});
 }
 
-export {
+module.exports = {
     ControlledFormInput
 };

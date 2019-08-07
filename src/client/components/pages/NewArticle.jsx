@@ -1,66 +1,8 @@
 // TODO: This all feels quite clunky. Is there a way to simplify things?
 // Getting rid of need to maintain "parent state" in InputFields would help greatly
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useReducer} from 'react';
 import { ControlledFormInput } from '../common/Form';
 
-/** 
- * Add data for a new translation
- * Any given article can have as many translations as you please
- * @param articles an array of all article data
- * @param index used to identify where article data should be inserted in to master state
-*/
-const InputFields = ({index, setArticles, articles, defaultValues={}}) => { 
-    const [article, setArticle] = useState(defaultValues);
-    // Update data held locally and by parent
-    const onChange = ({key, value}) => {
-        const updatedArticle = {...article, [key]: value};
-        setArticle(updatedArticle);
-
-        // Update parent copy
-        articles[index] = updatedArticle;
-        setArticles(articles);
-    };
-
-    return (
-        <div className="inputFields">
-            <ControlledFormInput defaultValue={defaultValues.language} onChange={({value}) => onChange({key: 'language', value})} render={ ({value, onChange}) => 
-                <label> Language
-                    <input type="text" value={value} onChange={onChange} />
-                </label>}
-            />
-            <ControlledFormInput defaultValue={defaultValues.title} onChange={({value}) => onChange({key: 'title', value})} render={ ({value, onChange}) => 
-                <label> Title
-                    <input type="text" value={value} onChange={onChange} />
-                </label>}
-            />
-            <ControlledFormInput defaultValue={defaultValues.blurb} onChange={({value}) => onChange({key: 'blurb', value})} render={ ({value, onChange}) => 
-                <label> Blurb
-                    <textarea type="text" value={value} onChange={onChange} />
-                </label>}
-            />
-            <ControlledFormInput defaultValue={defaultValues.link} onChange={({value}) => onChange({key: 'link', value})} render={ ({value, onChange}) => 
-                <label> Link
-                    <input type="text" value={value} onChange={onChange} />
-                </label>}
-            />
-            <ControlledFormInput defaultValue={defaultValues.image} onChange={({value}) => onChange({key: 'image', value})} render={ ({value, onChange}) => 
-                <label> Image
-                    <input type="text" value={value} onChange={onChange} />
-                </label>}
-            />
-            <ControlledFormInput defaultValue={defaultValues.text} onChange={({value}) => onChange({key: 'text', value})} render={ ({value, onChange}) => 
-                <label> Text
-                    <textarea type="text" value={value} onChange={onChange} />
-                </label>}
-            />
-            <ControlledFormInput defaultValue={defaultValues.date} onChange={({value}) => onChange({key: 'date', value})} render={ ({value, onChange}) => 
-                <label> Date
-                    <input type="text" value={value} onChange={onChange} />
-                </label>}
-            />
-        </div>
-    );
-};
 
 const NewArticle = () => {
     // Do we want to create a new article or edit an existing one?
@@ -68,19 +10,12 @@ const NewArticle = () => {
     const pathBits = window.location.pathname.split("/").slice(1);
     const isEdit = pathBits[0] === 'edit';
 
-    // Pass these to InputFields components. They will insert their state so that we can easily access data on submission
-    const [articles, setArticles] = useState([]);
-
-    const [id, setid] = useState(''); 
-    const [password, setPassword] = useState('');
-
-    // Show one set of fields by default
-    const [inputFieldsArray, setInputFieldsArray] = useState([]);
-
-    // Display another set of input fields
-    const onClick = () => {
-        setInputFieldsArray([...inputFieldsArray, <InputFields index={inputFieldsArray.length} setArticles={setArticles} articles={articles} />]);
-    };
+    const [state, dispatch] = useReducer(reducer, {
+        articles: [],
+        id: '', 
+        password: ''
+    });
+    const {articles, id, password} = state;
 
     // Set up input fields
     useEffect(() => {
@@ -89,51 +24,192 @@ const NewArticle = () => {
             fetch('/rest/get/?id=' + pathBits[1])
             .then( res => res.json())
             .then( json => {
-                // Input fields with pre-loaded data
-                const {articles} = json.data[0];
-                setInputFieldsArray(
-                    articles.map( (article, index) => <InputFields index={index} defaultValues={article} setArticles={setArticles} articles={articles} />)
-                );
+                // Load article data in to state
+                dispatch({type:'addNewArticleArray', articleArray: json.data[0]});
             });
-        } else {
-            // Just show an empty set of fields if not 
-            setInputFieldsArray([<InputFields index={0} setArticles={setArticles} articles={articles} />]);
+        }
+        // Just show an empty set of fields if not 
+        else {
+            dispatch({type:'addNewArticleArray', articleArray: [{}]})
         }
     }, []);
 
-    const submitFn = () => {
-        if( !id || articles.length === 0) {
-            console.warn("Submission blocked: either id or articles is unset", {id, articles});
-            return;
-        }
-
-        console.warn({id, articles, password});
-
-        fetch('/rest/create', {
-            method: 'post',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json; charset=UTF-8',
-            },
-            body: JSON.stringify({id, articles, password})
-        });
-    };
-
     return (
         <div>
-            <ControlledFormInput onChange={({value}) => setid(value)} render={ ({value, onChange}) => 
-                <label> id
-                    <input type="text" value={value} onChange={onChange} />
-                </label>}
+            <ControlledFormInput 
+                onChange={({value}) => dispatch({type:'setData', key: 'id', data: value})} 
+                render={ ({value, onChange}) => 
+                    <label> id
+                        <input type="text" value={value} onChange={onChange} />
+                    </label>
+                }
             />
-            <ControlledFormInput onChange={({value}) => setPassword(value)} render={ ({value, onChange}) => 
-                <label> password
-                    <input type="text" value={value} onChange={onChange} />
-                </label>}
+            <ControlledFormInput 
+                onChange={({value}) => dispatch({type:'setData', key:'password', data: value})} 
+                render={ ({value, onChange}) => 
+                    <label> password
+                        <input type="text" value={value} onChange={onChange} />
+                    </label>
+                }
             />
-            { inputFieldsArray.map((inputFields, i) => <div key={i}>{inputFields}</div>) }
-            <button onClick={onClick}> Add a language </button>
-            <button onClick={submitFn}> Submit </button>
+            { 
+                // Display a set of input fields for each language entered
+                articles.map((article, index) => <InputFields key={index} state={state} dispatch={dispatch} index={index} />) 
+            }
+            <button onClick={() => dispatch({type:'addNewArticleArray', articleArray: [{}]})}> Add a language </button>
+            <button onClick={() => submitFn({id, password, articles})}> Submit </button>
+        </div>
+    );
+};
+
+
+const reducer = (state, action) => {
+    switch (action.type) {
+        // Generic function for updating any given key in state
+        // Could be dangerous if misused, would it really be so bad to have separate setId and setPassword functions?
+        case 'setData':
+            const {key, data} = action;
+
+            if( !key || data==='undefined') {
+                console.warn("Reducer not provided with either data or key", action);
+                throw new Error();
+            }
+
+            return {
+                ...state, 
+                [key]: data
+            };
+
+        // Insert updated article data in to given array index
+        case 'updateArticle':
+            const {article, index} = action;
+
+            // Compare index to undefined because 0 is falsy
+            if( !article || index === undefined ) {
+                console.warn("Reducer not provided with either article or index", action);
+                throw new Error();
+            }
+
+            // Copy array
+            const updatedArticles = [...state.articles];
+            // Remove old instance of article and replace with updated version
+            updatedArticles.splice(index, 1, article);
+
+            return {
+                ...state, 
+                articles: updatedArticles
+            };
+
+        case 'addNewArticleArray':
+            const {articleArray} = action;
+
+            if( !articleArray ) {
+                console.warn("Reducer not provided with articleArray", action);
+                throw new Error();
+            }
+
+            return {
+                ...state,
+                articles: state.articles.concat(articleArray)
+            }
+        default: 
+            console.warn('Action type not recognised (' + action.type + ')')
+    }
+};
+
+// Ship data off to back-end
+const submitFn = ({id, articles, password}) => {
+    if( !id || articles.length === 0) {
+        console.warn("Submission blocked: either id or articles is unset", {id, articles});
+        return;
+    }
+
+    console.warn({id, articles, password});
+
+    fetch('/rest/create', {
+        method: 'post',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: JSON.stringify({id, articles, password})
+    });
+};
+
+/** 
+ * Add data for a new translation
+ * Any given article can have as many translations as you please
+ * @param articles an array of all article data
+ * @param index used to identify where article data should be inserted in to master state
+*/
+const InputFields = ({state, dispatch, index}) => { 
+    const article = state.articles[index];
+
+    return (
+        <div className="inputFields">
+            <ControlledFormInput 
+                defaultValue={article.language} 
+                onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'language': value}})} 
+                render={ ({value, onChange}) => 
+                    <label> Language
+                        <input type="text" value={value} onChange={onChange} />
+                    </label>
+                }
+            />
+            <ControlledFormInput 
+                defaultValue={article.title} 
+                onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'title': value}})} 
+                render={ ({value, onChange}) => 
+                    <label> Title
+                        <input type="text" value={value} onChange={onChange} />
+                    </label>
+                }
+            />
+            <ControlledFormInput 
+                defaultValue={article.blurb} 
+                onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'blurb': value}})} 
+                render={ ({value, onChange}) => 
+                    <label> Blurb
+                        <textarea type="text" value={value} onChange={onChange} />
+                    </label>
+                }
+            />
+            <ControlledFormInput 
+                defaultValue={article.link} 
+                onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'link': value}})} 
+                render={ ({value, onChange}) => 
+                    <label> Link
+                        <input type="text" value={value} onChange={onChange} />
+                    </label>
+                }
+            />
+            <ControlledFormInput 
+                defaultValue={article.image} 
+                onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'image': value}})} 
+                render={ ({value, onChange}) => 
+                    <label> Image
+                        <input type="text" value={value} onChange={onChange} />
+                    </label>
+                }
+            />
+            <ControlledFormInput 
+                defaultValue={article.text} 
+                onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'text': value}})} 
+                render={ ({value, onChange}) => 
+                    <label> Text
+                        <textarea type="text" value={value} onChange={onChange} />
+                    </label>
+                }
+            />
+            <ControlledFormInput 
+                defaultValue={article.date} 
+                onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'date': value}})} 
+                render={ ({value, onChange}) => 
+                    <label> Date
+                        <input type="text" value={value} onChange={onChange} />
+                    </label>
+                }
+            />
         </div>
     );
 };
