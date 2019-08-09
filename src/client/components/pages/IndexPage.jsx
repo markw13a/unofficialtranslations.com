@@ -55,8 +55,8 @@ const ArticlesList = ({data}) => {
                             <div className="extraInfo">
                                 <small className="date">{new Date(date).toLocaleDateString("en-UK", dateOptions)}</small>
                             </div>
-                            <div className="readMore cta">
-                                <a href={'/article/' + id}>Read More</a>
+                            <div className="readMore">
+                                <a className="cta" href={'/article/' + id}>Read More</a>
                             </div>
                         </div>
                     </div>
