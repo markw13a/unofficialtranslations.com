@@ -1,8 +1,6 @@
 // TODO: This all feels quite clunky. Is there a way to simplify things?
 // Getting rid of need to maintain "parent state" in InputFields would help greatly
 import React, {useEffect, useReducer} from 'react';
-import { ControlledFormInput } from '../common/Form';
-
 
 const NewArticle = () => {
     // Do we want to create a new article or edit an existing one?
@@ -13,9 +11,10 @@ const NewArticle = () => {
     const [state, dispatch] = useReducer(reducer, {
         articles: [],
         id: '', 
-        password: ''
+        password: '',
+        link: ''
     });
-    const {articles, id, password} = state;
+    const {articles, id, link, password} = state;
 
     // Set up input fields
     useEffect(() => {
@@ -24,8 +23,11 @@ const NewArticle = () => {
             fetch('/rest/get/?id=' + pathBits[1])
             .then( res => res.json())
             .then( json => {
+                const {articles, id, link} = json.data[0];
                 // Load article data in to state
-                dispatch({type:'addNewArticleArray', articleArray: json.data[0]});
+                dispatch({type:'addNewArticleArray', articleArray: articles});
+                dispatch({type:'setData', key: 'id', data: id});
+                dispatch({type:'setData', key: 'link', data: link});
             });
         }
         // Just show an empty set of fields if not 
@@ -36,28 +38,26 @@ const NewArticle = () => {
 
     return (
         <div>
-            <ControlledFormInput 
-                onChange={({value}) => dispatch({type:'setData', key: 'id', data: value})} 
-                render={ ({value, onChange}) => 
-                    <label> id
-                        <input type="text" value={value} onChange={onChange} />
-                    </label>
-                }
-            />
-            <ControlledFormInput 
-                onChange={({value}) => dispatch({type:'setData', key:'password', data: value})} 
-                render={ ({value, onChange}) => 
-                    <label> password
-                        <input type="text" value={value} onChange={onChange} />
-                    </label>
-                }
-            />
+            <label> 
+                id
+                <input type="text" value={id} onChange={event => dispatch({type:'setData', key:'id', data: event.target.value})} />
+            </label>
+            
+            <label> 
+                password
+                <input type="text" value={password} onChange={event => dispatch({type:'setData', key:'password', data: event.target.value})} />
+            </label>
+
+            <label> 
+                original article link
+                <input type="text" value={link} onChange={event => dispatch({type:'setData', key:'link', data: event.target.value})} />
+            </label>
             { 
                 // Display a set of input fields for each language entered
                 articles.map((article, index) => <InputFields key={index} state={state} dispatch={dispatch} index={index} />) 
             }
             <button onClick={() => dispatch({type:'addNewArticleArray', articleArray: [{}]})}> Add a language </button>
-            <button onClick={() => submitFn({id, password, articles})}> Submit </button>
+            <button onClick={() => submitFn({id, password, articles, link})}> Submit </button>
         </div>
     );
 };
@@ -118,13 +118,11 @@ const reducer = (state, action) => {
 };
 
 // Ship data off to back-end
-const submitFn = ({id, articles, password}) => {
+const submitFn = ({id, articles, link, password}) => {
     if( !id || articles.length === 0) {
         console.warn("Submission blocked: either id or articles is unset", {id, articles});
         return;
     }
-
-    console.warn({id, articles, password});
 
     fetch('/rest/create', {
         method: 'post',
@@ -132,7 +130,7 @@ const submitFn = ({id, articles, password}) => {
             'Accept': 'application/json',
             'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: JSON.stringify({id, articles, password})
+        body: JSON.stringify({id, articles, link, password})
     });
 };
 
@@ -147,69 +145,24 @@ const InputFields = ({state, dispatch, index}) => {
 
     return (
         <div className="inputFields">
-            <ControlledFormInput 
-                initialValue={article.language} 
-                onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'language': value}})} 
-                render={ ({value, onChange}) => 
-                    <label> Language
-                        <input type="text" value={value} onChange={onChange} />
-                    </label>
-                }
-            />
-            <ControlledFormInput 
-                initialValue={article.title} 
-                onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'title': value}})} 
-                render={ ({value, onChange}) => 
-                    <label> Title
-                        <input type="text" value={value} onChange={onChange} />
-                    </label>
-                }
-            />
-            <ControlledFormInput 
-                initialValue={article.blurb} 
-                onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'blurb': value}})} 
-                render={ ({value, onChange}) => 
-                    <label> Blurb
-                        <textarea type="text" value={value} onChange={onChange} />
-                    </label>
-                }
-            />
-            <ControlledFormInput 
-                initialValue={article.link} 
-                onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'link': value}})} 
-                render={ ({value, onChange}) => 
-                    <label> Link
-                        <input type="text" value={value} onChange={onChange} />
-                    </label>
-                }
-            />
-            <ControlledFormInput 
-                initialValue={article.image} 
-                onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'image': value}})} 
-                render={ ({value, onChange}) => 
-                    <label> Image
-                        <input type="text" value={value} onChange={onChange} />
-                    </label>
-                }
-            />
-            <ControlledFormInput 
-                initialValue={article.text} 
-                onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'text': value}})} 
-                render={ ({value, onChange}) => 
-                    <label> Text
-                        <textarea type="text" value={value} onChange={onChange} />
-                    </label>
-                }
-            />
-            <ControlledFormInput 
-                initialValue={article.date} 
-                onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'date': value}})} 
-                render={ ({value, onChange}) => 
-                    <label> Date
-                        <input type="text" value={value} onChange={onChange} />
-                    </label>
-                }
-            />
+            <label> Language
+                <input type="text" value={article.language} onChange={event => dispatch({type:'updateArticle', index, article: {...article, 'language': event.target.value}})} />
+            </label>
+            <label> Title
+                <input type="text" value={article.title} onChange={event => dispatch({type:'updateArticle', index, article: {...article, 'title': event.target.value}})} />
+            </label>
+            <label> Blurb
+                <input type="text" value={article.blurb} onChange={event => dispatch({type:'updateArticle', index, article: {...article, 'blurb': event.target.value}})} />
+            </label>
+            <label> Image
+                <input type="text" value={article.image} onChange={event => dispatch({type:'updateArticle', index, article: {...article, 'image': event.target.value}})} />
+            </label>
+            <label> Text
+                <textarea type="text" value={article.text} onChange={event => dispatch({type:'updateArticle', index, article: {...article, 'text': event.target.value}})} />
+            </label>
+            <label> Date
+                <input type="text" value={article.date} onChange={event => dispatch({type:'updateArticle', index, article: {...article, 'date': event.target.value}})} />
+            </label>
         </div>
     );
 };

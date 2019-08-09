@@ -5,8 +5,7 @@ import React, { useState } from 'react';
  * Will not be able to directly access value from outside
  * Can still use it by providing an onChange({value}) function
 */
-const ControlledFormInput = (props) => {  
-    const {onChange, render, initialValue} = props;
+const ControlledFormInput = ({onChange, render, initialValue, ...otherProps}) => {  
     const [value, setValue] = useState(initialValue);
 
     const onChangeBase = event => {
@@ -16,7 +15,7 @@ const ControlledFormInput = (props) => {
         onChange && onChange({value});
     };
 
-    return render({...props, onChange: onChangeBase, value});
+    return render({...otherProps, onChange: onChangeBase, value});
 }
 
 module.exports = {
