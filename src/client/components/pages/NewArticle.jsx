@@ -148,7 +148,7 @@ const InputFields = ({state, dispatch, index}) => {
     return (
         <div className="inputFields">
             <ControlledFormInput 
-                defaultValue={article.language} 
+                initialValue={article.language} 
                 onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'language': value}})} 
                 render={ ({value, onChange}) => 
                     <label> Language
@@ -157,7 +157,7 @@ const InputFields = ({state, dispatch, index}) => {
                 }
             />
             <ControlledFormInput 
-                defaultValue={article.title} 
+                initialValue={article.title} 
                 onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'title': value}})} 
                 render={ ({value, onChange}) => 
                     <label> Title
@@ -166,7 +166,7 @@ const InputFields = ({state, dispatch, index}) => {
                 }
             />
             <ControlledFormInput 
-                defaultValue={article.blurb} 
+                initialValue={article.blurb} 
                 onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'blurb': value}})} 
                 render={ ({value, onChange}) => 
                     <label> Blurb
@@ -175,7 +175,7 @@ const InputFields = ({state, dispatch, index}) => {
                 }
             />
             <ControlledFormInput 
-                defaultValue={article.link} 
+                initialValue={article.link} 
                 onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'link': value}})} 
                 render={ ({value, onChange}) => 
                     <label> Link
@@ -184,7 +184,7 @@ const InputFields = ({state, dispatch, index}) => {
                 }
             />
             <ControlledFormInput 
-                defaultValue={article.image} 
+                initialValue={article.image} 
                 onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'image': value}})} 
                 render={ ({value, onChange}) => 
                     <label> Image
@@ -193,7 +193,7 @@ const InputFields = ({state, dispatch, index}) => {
                 }
             />
             <ControlledFormInput 
-                defaultValue={article.text} 
+                initialValue={article.text} 
                 onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'text': value}})} 
                 render={ ({value, onChange}) => 
                     <label> Text
@@ -202,7 +202,7 @@ const InputFields = ({state, dispatch, index}) => {
                 }
             />
             <ControlledFormInput 
-                defaultValue={article.date} 
+                initialValue={article.date} 
                 onChange={({value}) => dispatch({type:'updateArticle', index, article: {...article, 'date': value}})} 
                 render={ ({value, onChange}) => 
                     <label> Date
