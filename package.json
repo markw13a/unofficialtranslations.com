@@ -9,10 +9,10 @@
     "webpack-server": "./node_modules/.bin/webpack --config webpack.server.config.js"
   },
   "dependencies": {
-    "body-parser": "~1.18.2",
+    "body-parser": "~1.20.1",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
-    "express": "~4.15.5",
+    "express": "~4.18.2",
     "mongodb": "^3.0.10",
     "morgan": "~1.9.0",
     "react": "^16.4.1",
